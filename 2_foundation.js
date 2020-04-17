@@ -1,136 +1,158 @@
-//Simple Javascript Engine
-function jsengine(code) {
-  return code.split(/\s+/);
+//EXECUTION CONTEXT
+//when the engine sees function brackets, it creates a new execution context
+//anytime we run code, it always runs in global()
+
+//2 PHASES IN THE EXECUTION CONTEXT
+//1. CREATION - where reading and hoisting happens
+//2. EXECUTION - where code is running
+
+//HOISTING
+//var and function can be hoisted
+console.log("1-------");
+console.log(teddy); //when the engine sees a variable before declaration, it creates a undefined declaration
+var teddy = "bear";
+
+console.log(sing());
+console.log(sing2); //undefined, because var sing2 is hoisted in creation
+//console.log(sing2()); here the sing2() creates error
+
+//function declaration
+function sing() {
+  //when the engine sees a function declaration it stores in memory, and hoist it before console.log(sing())
+  console.log("ohhh la la la");
 }
 
-jsengine("var a = 5"); // ['var', 'a', '=', '5']
-
-//OPTIMIZING COMPILER CODE
-//INLINE CACHING
-function findUser(user) {
-  return `found ${user.firstName} ${user.lastName}`; //becomes 'found Johnson Junior'
-}
-
-const userData = {
-  firstName: "Johnson",
-  lastname: "Junior",
+//function expression
+//the function expression isn't gonna be hoisted in the creation phase
+var sing2 = function () {
+  console.log("uhhh la la la");
 };
 
-findUser(userData); // 'found Johnson Junior'
+console.log(sing2());
 
-//HIDDEN CLASSES
-function Animal(x, y) {
-  this.x = x;
-  this.y = y;
+//HOISTING
+console.log(one); //undefined
+var one = 1;
+var one = 2;
+console.log(one); //2
+
+a(); //bye
+function a() {
+  console.log("hi");
 }
+a(); //bye
+function a() {
+  console.log("bye");
+}
+a(); //bye
 
-const obj1 = new Animal(1, 2);
-const obj2 = new Animal(3, 4);
-
-//this different order is slowing down the compiler
-obj1.a = 30;
-obj1.b = 100;
-obj2.b = 30;
-obj2.a = 100;
-//deletion is problem too
-delete obj1.x;
-
-//CALL STACK & MEMORY HEAP
-//MEMORY HEAP - STORING VARIABLES, INFORMATION
-const number = 610; //allocate memory for number
-const string = "some text"; //allocate memory for string
-const human = {
-  //allocate memory for object and it's values
-  first: "John",
-  last: "JihnJohn",
+var favouriteFood = "grapes";
+var foodThoughts = function () {
+  console.log("Original favourite food: " + favouriteFood);
+  var favouriteFood = "sushi";
+  console.log("New favourite food: " + favouriteFood);
 };
+foodThoughts();
+//Original favourite food: undefined
+//New favourite food: sushi
 
-//CALL STACK - RUN AND TRACK
-function subtractTwo(num) {
-  return num - 2;
-}
-
-function calculate() {
-  //allocated function to memory
-  const sumTotal = 4 + 5;
-  return subtractTwo(sumTotal);
-}
-
-calculate(); //adds calculate() to the Call stack, which adds subtractTwo() to Call stack
-
-// |     subtractTwo()    |
-// |     calculate()      |
-// |   anonymus/global()  |
-// ^    Call Stack        ^
-
-//Order of execution:
-//0. call stack is empty
-//1. + global()
-//2. + calculate()
-//3. + subtractTwo()
-//4. - subtractTwo()
-//5. - calculate()
-//6. - global()
-//7. class stack is empty
-
-//STACK OVERFLOW
-function inception() {
-  //Recursion
-  inception();
-}
-
-//MEMORY LEAK
-//filling up memory with an infinite growing array
-let array = [];
-function fillUpMemory() {
-  for (let i = 5; i > 1; i++) {
-    array.push(i - 1);
+function bigBrother() {
+  function littleBrother() {
+    return "it is me!";
+  }
+  return littleBrother();
+  function littleBrother() {
+    return "no me!";
   }
 }
-//lot of global variables
-var a = 1;
-var b = 1;
-var c = 1;
-//...
+console.log(bigBrother()); //"no me!"
 
-//lot of event listeners
-// var element = document.getElementById("button");
-// element.addEventListener("click", onClick);
+//FUNCTION DECLARATION
+//defined at parsetime
+function india() {
+  console.log("warm");
+}
+//FUNCTION EXPRESSION
+//this is defined at runtime
+var canada = function () {
+  console.log("cold");
+};
+//ARROW FUNCTION
+var england = () => {
+  console.log("rainy");
+};
+//FUNCTION INVOCATION/CALL/EXECUTION
+india();
+canada();
+england();
 
-//setInterval
-setInterval(() => {
-  //referencing objects...
-});
+//ARGUMENTS OBJECT
+function india() {
+  console.log(arguments); // {} - on execution context we create an arguments object
+  console.log("warm");
+}
 
-//JAVASCRIPT IS SINGLE THREADED LANGUAGE
-//it has 1 call stack - synchronous
+function marry(person1, person2) {
+  console.log(arguments); //old, not recommended
+  console.log(Array.from(arguments)); //new, recommended
+  console.log([...arguments]); //or ES6 spread operator
+  return `${person1} is now married to ${person2}`; //'tim is now married to tina'
+}
+marry("tim", "tina");
 
-//asynchronous
-console.log("1");
-setTimeout(() => {
-  console.log("2"), 1000;
-});
-console.log("3");
-//1
-//3
-//2
+//with ES6 spread operator as arguments
+function marry2(...args) {
+  console.log("arguments", args); //new, recommended
+  return `${args[0]} is now married to ${args[1]}`; //'joey is now married to jenny'
+}
+marry2("joey", "jenny");
 
-setTimeout(() => {
-  console.log("1", "is the loneliest number");
-}, 1000);
-setTimeout(() => {
-  console.log("2", "can be as bad as one");
-}, 10);
-console.log("3", "is a crowd");
-//3, is a crowd               //first the console.log functions
-//2, can be as bad as one     //then the setTimeout functions with lower time
-//1, is the loneliest number  //then the setTimeout functions with higher time
+//VARIABLE ENVIRONMENTS
+//each Execution Context has it's own Variable Environment
+function second() {
+  var isValid;
+}
+function first() {
+  var isValid = true;
+  second();
+}
+var isValid = false;
+first();
 
-setTimeout(() => {
-  console.log("1", "is the loneliest number");
-}, 0);
-Promise.resolve("hi").then(() => console.log("2", "can be as bad as one"));
-console.log("3", "is a crowd");
-//3, is a crowd               //first the console.log functions
-//2, can be as bad as one     //then Promises
-//1, is the loneliest number  //then setTimeout functions
+//second() -- isValid = undefined
+//first() -- isValid = true
+//global() -- isValid = false
+//CALL STACK
+
+//SCOPE CHAIN
+function sayMyName() {
+  var a = "a";
+  console.log("sayMyName: ", a); //c, b = undefined
+  return function findName() {
+    var b = "b";
+    console.log("findName: ", b, a); //c = undefined
+    return function printName() {
+      var c = "c";
+      console.log("printName: ", c, b, a);
+      return "Viktor Pikktorr";
+    };
+  };
+}
+sayMyName(); //function: findName
+sayMyName()(); //function: printName
+sayMyName()()(); //'Viktor Pikktorr'
+
+//LEAKAGE OF GLOBAL VARIABLES
+function weird() {
+  height = 50; //height gets created in global, if using 'use strict' it throws error
+  return height;
+}
+console.log(weird());
+
+var heyhey = function doodle() {
+  console.log("heyhey");
+};
+heyhey(); //"heyhey"
+// doodle();  error, doodle is not defined
+
+
