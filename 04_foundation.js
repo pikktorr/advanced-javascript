@@ -51,7 +51,7 @@ function getMaxOfArray(arr) {
 
 //Solution with reduce()
 const reduceToMax = array.reduce((accumulator, currentValue) => {
-  //on every iteration the reducer compares the current value to the largest ever number
+  //comparing the current value to the highest number from start
   // acc  current
   // 3    2
   // 3    1
