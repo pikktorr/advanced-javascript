@@ -36,14 +36,14 @@ const clone = Object.assign({}, obj1); //shallow cloning the original object
 const clone2 = { ...obj1 }; //shallow cloning with newer syntax
 const realClone = JSON.parse(JSON.stringify(obj1)); //real clone copy of original object, not efficient
 
-obj1.backpack.firstAidKit = "none";
+obj1.backpack.firstAidKit = "none"; //deeper object modification can alter even the shallow clone
 obj2.password = "Ellie"; //can modify obj1 through reference
 
-console.log(obj1); //{ name: 'Joel', password: 'Ellie', backpack: { firstAidKit: 'none' } }
-console.log(obj2); //{ name: 'Joel', password: 'Ellie', backpack: { firstAidKit: 'none' } }
-console.log(clone2); //with shallow cloning deeper objects are overwritten from original object
+obj1; //{ name: 'Joel', password: 'Ellie', backpack: { firstAidKit: 'none' } }
+obj2; //{ name: 'Joel', password: 'Ellie', backpack: { firstAidKit: 'none' } }
+clone2; //with shallow cloning deeper objects are overwritten from original object
 //{ name: 'Joel', password: 'beard', backpack: { firstAidKit: 'none' } }
-console.log(realClone); //{ name: 'Joel',  password: 'beard',  backpack: { firstAidKit: 'bandage' } }
+realClone; //{ name: 'Joel',  password: 'beard',  backpack: { firstAidKit: 'bandage' } }
 
 //arrays are objects
 const arr1 = [1, 2, 3, 4, 5];
@@ -52,4 +52,104 @@ arr2.push(56818); //new value is passed by reference into arr1
 arr2; //[1,2,3,4,5,56818]
 arr1; //[1,2,3,4,5,56818]
 
+//COMPARE ARRAYS
+const arrayA = [1, 2];
+const arrayB = [1, 2];
+arrayA === arrayB; // false - but it's not right
+const compareArrays = (a, b) => {
+  //Check if values are arrays, if not return false
+  if (!(Array.isArray(a) && Array.isArray(b))) {
+    return false;
+  }
+  //Check if their length is the same, if not return false
+  if (a.length !== b.length) {
+    return false;
+  }
+  //Check if their values are the same, if not return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  //If every test passed, a === b
+  return true;
+};
+compareArrays(arrayA, arrayB); // true
 
+//COMPARE FUNCTIONS
+//Shallow function comparison
+//Checks if both functions have the exact same characters
+//Any missing non-whitespace character will produce false
+//Even though the funcionality is the same
+const functionA = () => {
+  let array = [1, "string", {}, true];
+  return array;
+};
+const functionB = () => {
+  let array = [1, "string", {}, true];
+  return array;
+};
+const compareFunctions = (a, b) => {
+  //Convert functions to string, remove every whitespace with regex
+  let stringA = a.toString().replace(/\s/g, "");
+  let stringB = b.toString().replace(/\s/g, "");
+  if (stringA !== stringB) {
+    return false;
+  }
+  return true;
+};
+compareFunctions(functionA, functionB); //true
+
+//COMPARE OBJECTS
+const objectA = { a: 1, b: 100n, c: {}, d: [1, 2], e: "abc", f: true, g: () => {} };
+const objectB = { a: 1, b: 100n, c: {}, d: [1, 2], e: "abc", f: true, g: () => {} };
+objectA === objectB; //false - but it's not good comparison
+
+const compareObjects = (a, b) => {
+  let A = Object.getOwnPropertyNames(a); //returns array of property names
+  let B = Object.getOwnPropertyNames(b); //returns array of property names
+  //Check if number of property names are the same, if not return false
+  if (A.length !== B.length) {
+    return false;
+  }
+  //Compare all properties on both object
+  for (let i = 0; i < A.length; i++) {
+    let propertyName = A[i];
+    let propValueA = a[propertyName];
+    // same as a.propertyName, but this way it's dynamic insertion with every iteration
+    let propValueB = b[propertyName];
+    //Check if both values are arrays
+    if (Array.isArray(propValueA) && Array.isArray(propValueB)) {
+      //Check if the arrays are identical
+      if (!compareArrays(propValueA, propValueB)) {
+        return false;
+      }
+    }
+    //Check if both values are objects
+    else if (
+      propValueA.constructor === Object &&
+      propValueB.constructor === Object
+    ) {
+      //Compare both objects with compareObjects - recursive invocation
+      if (!compareObjects(propValueA, propValueB)) {
+        return false;
+      }
+    }
+    //Check if both values are functions
+    else if (
+      propValueA.constructor === Function &&
+      propValueB.constructor === Function
+    ) {
+      //Check if both functions are the same
+      if (!compareFunctions(propValueA, propValueB)) {
+        return false;
+      }
+    }
+    //Check if both values are the same primitives
+    else if (propValueA !== propValueB) {
+      return false;
+    }
+  }
+  return true;
+};
+compareObjects(objectA, objectB); //true
