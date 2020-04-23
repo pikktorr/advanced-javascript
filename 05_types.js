@@ -101,8 +101,24 @@ const compareFunctions = (a, b) => {
 compareFunctions(functionA, functionB); //true
 
 //COMPARE OBJECTS
-const objectA = { a: 1, b: 100n, c: {}, d: [1, 2], e: "abc", f: true, g: () => {} };
-const objectB = { a: 1, b: 100n, c: {}, d: [1, 2], e: "abc", f: true, g: () => {} };
+const objectA = {
+  a: 1,
+  b: 100n,
+  c: {},
+  d: [1, 2],
+  e: "abc",
+  f: true,
+  g: () => {},
+};
+const objectB = {
+  a: 1,
+  b: 100n,
+  c: {},
+  d: [1, 2],
+  e: "abc",
+  f: true,
+  g: () => {},
+};
 objectA === objectB; //false - but it's not good comparison
 
 const compareObjects = (a, b) => {
@@ -153,3 +169,23 @@ const compareObjects = (a, b) => {
   return true;
 };
 compareObjects(objectA, objectB); //true
+
+//TYPE COERCION
+1 == "1"; // true - compared by value - coercion
+1 === "1"; // false - compared by type - no coercion
+
+-0 === +0; //true
+Object.is(-0, +0); //false
+
+NaN === NaN; //false
+Object.is(NaN, NaN); //true
+
+false == ""; //true
+false == []; //true
+false == {}; //false
+"" == 0; //true
+"" == {}; //false
+"" == []; //true
+0 == []; //true
+0 == {}; //false
+0 == null; //false
