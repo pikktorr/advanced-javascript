@@ -189,3 +189,11 @@ false == {}; //false
 0 == []; //true
 0 == {}; //false
 0 == null; //false
+
+//Challenge
+var y = "3"; // string '3'
+var x = Number(y); // number 3
+x = +y; // x = +'3'; --> number 3
+x += y; // x = number 3 + string '3' --> string '33'
+console.log(x, y); // '33' '3'
+console.log(typeof y + ", " + typeof x); // 'string, string'
