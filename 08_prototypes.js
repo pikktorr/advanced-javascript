@@ -101,4 +101,32 @@ wizard.gender; // male
 wizard.magic(); // Lumos
 witch.isPrototypeOf(wizard); // true
 
-// WTF
+//EXERCISE - extend the functionality of a built in object
+//#1
+//Date object => to have a new method .lastYear()
+//which shows you last year 'YYYY' format
+const newDate = new Date("1900.10.10");
+Date.prototype.lastYear = function () {
+  //'this' refers to the object which called the function
+  return this.getFullYear() - 1;
+};
+console.log(newDate.lastYear()); //1899
+
+//#Bonus
+//Modify .map() to print 'map' at the end of each item.
+// Array.prototype.__origMap = Array.prototype.map;
+// Array.prototype.map = function () {
+//   let array = [];
+//   for (let i = 0; i < this.length; i++) {
+//     array.push(this[i] + "map");
+//   }
+//   return array;
+// };
+
+//Create own .bind() method
+Function.prototype.bind = function (whoIsCallingMe) {
+  const self = this;
+  return function () {
+    return self.apply(whoIsCallingMe, arguments);
+  };
+};
