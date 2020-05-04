@@ -45,7 +45,6 @@ function hi() {
   //not a pure function, logs to the outside
   console.log("hi");
 }
-hi(); // hi
 
 //IDEMPOTENCE
 
@@ -103,7 +102,47 @@ curriedMultiplyBy5(4); //20
 
 //PARTIAL APPLICATION
 const multiply2 = (a, b, c) => a * b * c;
-//on the first call it is partial 
+//on the first call it is partial
 const partialMultiplyBy5 = multiply2.bind(null, 5);
 //on the second call, partial application expects rest of the arguments
 partialMultiplyBy5(4, 10);
+
+// MEMOIZATION - CACHING
+// storing the return value, from the second call it'll be returned from cache
+const AddTo4 = () => {
+  // chache is in the function, this way we don't pollute the global
+  // using cache with closure
+  let cache = {};
+  return function (n) {
+    if (cache[n]) {
+      console.log("additional run: return from cache");
+      return cache[n];
+    } else {
+      console.log("1st run: store in cache + return");
+      cache[n] = n + 4;
+      return cache[n];
+    }
+  };
+};
+const memoizedAddTo4 = AddTo4();
+memoizedAddTo4(5); // "1st run: store in cache + return" 9
+memoizedAddTo4(5); // "additional run: return from cache" 9
+
+// FUNCTIONAL PROGRAMMING
+// COMPOSE AND PIPE
+const multiplyBy3 = (num) => num * 3;
+const makePositive = (num) => Math.abs(num);
+const compose = (fn1, fn2) => (data) => fn1(fn2(data));
+// compose = (multiplyBy3, makePositive) => (-4) => multiplyBy3(makePositive(-4));
+const makePositiveAndMultiplyBy3 = compose(multiplyBy3, makePositive);
+makePositiveAndMultiplyBy3(-4); // 12
+
+// pipe - same as compose, but in opposite order evaluation
+const pipe = (fn1, fn2) => (data) => fn2(fn1(data));
+// pipe = (multiplyBy3, makePositive) => (-4) => makePositive(multiplyBy3(-4));
+const multiplyBy3AndAbsolute = pipe(multiplyBy3, makePositive);
+multiplyBy3AndAbsolute(-4); // 12
+
+// ARITY
+// number of arguments a function takes
+// make fewer number of parameters - more flexible, easier to use
