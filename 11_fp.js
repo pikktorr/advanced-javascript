@@ -1,6 +1,4 @@
 //FUNCTIONAL PROGRAMMING
-// separation of concern
-
 //EXERCISE
 //Amazon shopping
 //Implement a cart feature:
@@ -11,92 +9,49 @@
 //Bonus:
 // accept refunds.
 // Track user history.
-const shopping = {
+const userKim = {
   name: "Kim",
   active: true,
   cart: [],
-  cartTotal: 0,
-  purchase: [],
-  purchaseTotal: 0,
-  history: [],
-  historyTotal: 0,
+  purchases: [],
 };
+let history = [];
 
-const addItemToCart = (item, price) => {
-  const fullPrice = taxes(price);
-  shopping.cart.push({ item, price, fullPrice });
+const pipe = (fn1, fn2) => (...args) => fn2(fn1(...args));
+const purchaseItem = (...functions) => functions.reduce(pipe);
+const addItemToCart = (user, item) => {
+  history.push(user);
+  const updatedCart = user.cart.concat(item);
+  return Object.assign({}, user, { cart: updatedCart });
 };
-
-const taxes = (price) => {
-  return price * 1.27;
-};
-
-const sumPrice = (array) => {
-  let sumItems = 0;
-  array.map((item) => {
-    sumItems += item.fullPrice;
+const applyTax = (user) => {
+  history.push(user);
+  const { cart } = user; // same as user.cart
+  const taxRate = 1.27;
+  const updatedCart = cart.map((item) => {
+    // iterate over cart array
+    return {
+      // return same name and new price with taxes
+      name: item.name,
+      price: item.price * taxRate,
+    };
   });
-  return sumItems;
+  // return updated new object
+  return Object.assign({}, user, { cart: updatedCart });
 };
-
-const cartTotal = () => {
-  shopping.cartTotal = sumPrice(shopping.cart);
+const buyItem = (user) => {
+  history.push(user);
+  return Object.assign({}, user, { purchases: user.cart });
 };
-
-const emptyCart = () => {
-  shopping.cart = [];
-  shopping.cartTotal = 0;
+const emptyCart = (user) => {
+  history.push(user);
+  return Object.assign({}, user, { cart: [] });
 };
-
-const buyItems = () => {
-  shopping.purchase = [...shopping.cart];
-};
-
-const purchaseTotal = () => {
-  shopping.purchaseTotal = sumPrice(shopping.purchase);
-};
-
-const emptyPurchase = () => {
-  shopping.purchase = [];
-  shopping.purchaseTotal = 0;
-};
-
-const purchaseToHistory = () => {
-  shopping.history.push(...shopping.purchase);
-};
-
-const historyTotal = () => {
-  shopping.historyTotal += sumPrice(shopping.history);
-};
-
-const cart = (item, price) => {
-  addItemToCart(item, price);
-  cartTotal();
-};
-
-const purchase = () => {
-  buyItems();
-  emptyCart();
-  purchaseTotal();
-};
-
-const leave = () => {
-  purchaseToHistory();
-  emptyPurchase();
-  historyTotal();
-};
-
-const purchaseAndLeave = () => {
-  purchase();
-  console.log(shopping);
-  leave();
-};
-
-cart("Bed Matress", 30000);
-cart("Kitchen Sink", 45000);
-cart("Coffee", 600);
-console.log(shopping);
-purchaseAndLeave();
-console.log(shopping);
-purchaseAndLeave();
-console.log(shopping);
+const purchase = purchaseItem(
+  addItemToCart,
+  applyTax,
+  buyItem,
+  emptyCart
+)(userKim, { name: "matress", price: 30000 });
+console.log(purchase);
+console.log(history);

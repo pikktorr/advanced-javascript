@@ -9,6 +9,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "node-fetch": "^2.6.0"
+  },
   "dependencies": {}
 }
