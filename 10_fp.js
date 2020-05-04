@@ -1,102 +1,148 @@
 //FUNCTIONAL PROGRAMMING
-// separation of concern
+//PURE FUNCTIONS
+// no side effects
+// - cannot modify outside the function
+// given input always returns the same output
 
-//EXERCISE
-//Amazon shopping
-//Implement a cart feature:
-// 1. Add items to cart.
-// 2. Add 3% tax to item in cart
-// 3. Buy item: cart --> purchases
-// 4. Empty cart
-//Bonus:
-// accept refunds.
-// Track user history.
-const shopping = {
-  name: "Kim",
-  active: true,
-  cart: [],
-  cartTotal: 0,
-  purchase: [],
-  purchaseTotal: 0,
-  history: [],
-  historyTotal: 0,
+//FUNCTIONAL PROGRAMMING
+//PURE FUNCTIONS
+//no side effects
+//given input always make same output
+//easy to test
+//easy to compose
+//easy to avoid bugs
+
+const array = [1, 2, 3, 4];
+//side effects - function modifies outer data
+function mutateArray(arr) {
+  arr.pop();
+}
+function mutateArray2(arr) {
+  arr.forEach((item) => arr.push("yep"));
+}
+mutateArray(array);
+mutateArray2(array);
+array; // [1,2,3,'yep', 'yep', 'yep']
+
+//no side effects - no effect on outside world
+const array2 = [4, 3, 2, 1];
+function removeLastItem() {
+  const innerArray = [...array2];
+  innerArray.pop();
+  return innerArray;
+}
+removeLastItem(); // [4,3,2]
+
+function multiplyByTwo(arr) {
+  const innerArray = [...array2];
+  return innerArray.map((item) => item * 2);
+}
+multiplyByTwo(array2); // [8,6,4,2]
+array2; // [4,3,2,1]
+
+//even console.log has side effects
+function hi() {
+  //not a pure function, logs to the outside
+  console.log("hi");
+}
+
+//IDEMPOTENCE
+
+//idempotent
+//not pure, but always returns the same output
+//predictable
+function good(num) {
+  return console.log(num);
+}
+good(4); // 4
+
+//every time the function returns different output
+function notGood(num) {
+  return Math.random(num);
+}
+notGood(4); // random number every time
+
+//IMPERATIVE VS DECLARATIVE CODE
+//imperative - telling what to do, step by step
+for (let i = 0; i < 5; i++) {
+  console.log(i);
+}
+//declarative - not telling how to do it
+[0, 1, 2, 3, 4].forEach((item) => console.log(item));
+
+//IMMUTABILITY
+//not changing the data/state
+//making copies of the state and returning them
+const obj = { name: "pikktorr" };
+function clone(obj) {
+  return { ...obj }; //cloning, this is pure
+}
+function updateName(obj) {
+  const obj2 = clone(obj);
+  obj2.name = "bambam";
+  return obj2;
+}
+const updatedObj = updateName(obj);
+obj; //{ name: 'pikktorr' }
+updatedObj; //{ name: 'bambam' }
+
+//STRUCTURAL SHARING
+//when new data structure is created from an existing
+//only changes of state are copied
+
+//CURRYING
+const multiply = (a, b) => a * b;
+multiply(3, 4); //12
+const curriedMultiply = (a) => (b) => a * b;
+curriedMultiply(5)(3); //15
+
+const curriedMultiplyBy5 = curriedMultiply(5); //function will be stored
+//10 years from now
+curriedMultiplyBy5(4); //20
+
+//PARTIAL APPLICATION
+const multiply2 = (a, b, c) => a * b * c;
+//on the first call it is partial
+const partialMultiplyBy5 = multiply2.bind(null, 5);
+//on the second call, partial application expects rest of the arguments
+partialMultiplyBy5(4, 10);
+
+// MEMOIZATION - CACHING
+// storing the return value, from the second call it'll be returned from cache
+const AddTo4 = () => {
+  // chache is in the function, this way we don't pollute the global
+  // using cache with closure
+  let cache = {};
+  return function (n) {
+    if (cache[n]) {
+      console.log("additional run: return from cache");
+      return cache[n];
+    } else {
+      console.log("1st run: store in cache + return");
+      cache[n] = n + 4;
+      return cache[n];
+    }
+  };
 };
+const memoizedAddTo4 = AddTo4();
+memoizedAddTo4(5); // "1st run: store in cache + return" 9
+memoizedAddTo4(5); // "additional run: return from cache" 9
 
-const addItemToCart = (item, price) => {
-  const fullPrice = taxes(price);
-  shopping.cart.push({ item, price, fullPrice });
-};
+// FUNCTIONAL PROGRAMMING
+// COMPOSE AND PIPE
+const multiplyBy3 = (num) => num * 3;
+const makePositive = (num) => Math.abs(num);
+const compose = (fn1, fn2) => (data) => fn1(fn2(data));
+// compose = (multiplyBy3, makePositive) => (-4) => multiplyBy3(makePositive(-4));
+const makePositiveAndMultiplyBy3 = compose(multiplyBy3, makePositive);
+makePositiveAndMultiplyBy3(-4); // 12
 
-const taxes = (price) => {
-  return price * 1.27;
-};
+// pipe - same as compose, but in opposite order evaluation
+const pipe = (fn1, fn2) => (data) => fn2(fn1(data));
+// pipe = (multiplyBy3, makePositive) => (-4) => makePositive(multiplyBy3(-4));
+const multiplyBy3AndAbsolute = pipe(multiplyBy3, makePositive);
+multiplyBy3AndAbsolute(-4); // 12
 
-const sumPrice = (array) => {
-  let sumItems = 0;
-  array.map((item) => {
-    sumItems += item.fullPrice;
-  });
-  return sumItems;
-};
-
-const cartTotal = () => {
-  shopping.cartTotal = sumPrice(shopping.cart);
-};
-
-const emptyCart = () => {
-  shopping.cart = [];
-  shopping.cartTotal = 0;
-};
-
-const buyItems = () => {
-  shopping.purchase = [...shopping.cart];
-};
-
-const purchaseTotal = () => {
-  shopping.purchaseTotal = sumPrice(shopping.purchase);
-};
-
-const emptyPurchase = () => {
-  shopping.purchase = [];
-  shopping.purchaseTotal = 0;
-};
-
-const purchaseToHistory = () => {
-  shopping.history.push(...shopping.purchase);
-};
-
-const historyTotal = () => {
-  shopping.historyTotal += sumPrice(shopping.history);
-};
-
-const cart = (item, price) => {
-  addItemToCart(item, price);
-  cartTotal();
-};
-
-const purchase = () => {
-  buyItems();
-  emptyCart();
-  purchaseTotal();
-};
-
-const leave = () => {
-  purchaseToHistory();
-  emptyPurchase();
-  historyTotal();
-};
-
-const purchaseAndLeave = () => {
-  purchase();
-  console.log(shopping);
-  leave();
-};
-
-cart("Bed Matress", 30000);
-cart("Kitchen Sink", 45000);
-cart("Coffee", 600);
-console.log(shopping);
-purchaseAndLeave();
-console.log(shopping);
-purchaseAndLeave();
-console.log(shopping);
+// ARITY
+// number of arguments a function takes
+// make fewer number of parameters - more flexible, easier to use
