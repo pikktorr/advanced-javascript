@@ -159,3 +159,17 @@ const sequence = async function () {
   return `sequence is done: ${output1}, ${output2}, ${output3}`;
 };
 sequence().then(console.log); // total wait time: 8000 - 8 seconds
+
+// THREADS, CONCURRENCY, PARALLELISM
+// in browser a New Tab is a new thread
+
+// const worker = new Worker("worker.js");
+// worker.postMessage("Hello") // post message to another thread
+
+// concurrency
+// e.g. Single-Core CPU - one mouth - using two threads - eating with two hands, one after another
+
+// parallelism
+// e.g. Multi-Core CPU - more mouths - using two threads - eating with two hands, synchronosly feeding more mouths
+
+
