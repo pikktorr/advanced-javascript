@@ -107,15 +107,18 @@ function nestedTryCatch() {
 //   .catch((error) => console.log(error));
 
 // ASYNC AWAIT ERROR HANDLING
-async function asyncAwait() {
+async function asyncAwaitError() {
   try {
     await Promise.reject("Oh no");
+    console.log("Will it run?");
+    // "Will it run?" - Nope, on error it will jump to 'catch'
   } catch (error) {
-    console.log(error); // Oh no
+    console.log(error); // "Oh no" - error is 'reject' response
+  } finally {
+    console.log("Will it run finally?"); // "Will it run finally?" - Yepp, 'finally' runs even after errors
   }
-  console.log("will this run?");
 }
-asyncAwait();
+asyncAwaitError();
 
 (function () {
   try {
@@ -151,4 +154,3 @@ class databaseError extends Error {
 }
 const dbError = new databaseError("bigData");
 dbError.db; // whirring bigData
-
